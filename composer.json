@@ -2,5 +2,7 @@
     "require": {
         "twig/twig": "2.*"
     },
-    "psr-4": {"Application\\" : "app/", "Library\\" : "lib/"}
+    "autoload": {
+        "psr-4": {"Application\\": "app/", "Library\\": "lib/"}
+    }
 }
