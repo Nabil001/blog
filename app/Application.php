@@ -25,17 +25,19 @@ class Application {
     }
 
     public function get404ErrorController() {
+        //header($this->request->getProtocol() . '404 Not Found', true);
         $controller = new Error\ErrorController(
                                                 new Route('Default', 'show404', ''),
-                                                $this->getRequest(),
+                                                $this->request,
                                                 $this
                                                 );
     }
 
     public function get503ErrorController() {
+        //header($this->request->getProtocol() . '503 Service Unavailable', true);
         $controller = new Error\ErrorController(
                                                 new Route('Default', 'show503', ''),
-                                                $this->getRequest(),
+                                                $this->request,
                                                 $this
                                                 );
     }
