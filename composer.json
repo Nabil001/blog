@@ -3,6 +3,6 @@
         "twig/twig": "2.*"
     },
     "autoload": {
-        "psr-4": {"Application\\": "app/", "Library\\": "lib/"}
+        "psr-4": {"Blog\\": "app/", "Library\\": "lib/"}
     }
 }
