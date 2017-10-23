@@ -37,7 +37,7 @@ class Controller {
             return new Response($method->invokeArgs($this, $parameters));
         }
         else {
-            throw new Exceptions\UnimplementedActionException();
+            throw new Exceptions\UnimplementedActionException($this->route->getModule(), $this->route->getAction());
         }
     }
 
