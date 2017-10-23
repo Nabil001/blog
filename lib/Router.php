@@ -16,10 +16,11 @@ class Router {
     }
 
     public function getController() {
+
         foreach ($this->routes as $route) {
             if($route->matches($this->application->getRequest()->getURI()) !== false) {
                 $controller = '\Blog\\Controllers\\'.$route->getModule().'Controller';
-                return new $controller();
+                return new $controller($route, $this->application);
             }
         }
         throw new Exceptions\NoSuchRouteException();

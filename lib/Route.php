@@ -10,9 +10,7 @@ class Route {
     protected $slugs;
 
     public function __construct($module, $action, $urlPattern, array $slugs = []) {
-        $firstChar = $urlPattern[0];
-        $lastChar = substr($urlPattern, -1);
-        if(strcmp($firstChar, $lastChar) != 0) {
+        if(!empty($urlPattern) && strcmp($urlPattern[0], substr($urlPattern, -1)) != 0) {
             throw new \InvalidArgumentException('The given URL pattern,'.$urlPattern.' is invalid' . "\n");
         }
         $this->module = strval($module);
@@ -23,11 +21,14 @@ class Route {
 
     public function matches($url) {
         $actionParameters = [];
-        if(preg_match($this->urlPattern, $url, $matches)) {
-            //si il y a correspondance, on parcourt le tableau des slugs
+        if(!empty($this->urlPattern) && preg_match($this->urlPattern, $url, $matches)) {
+            //if there's a match, we go through the slugs array
             for($i = 0 ; $i < count($this->slugs) ; $i++) {
-                if(isset($matches[$i + 1])) {
-                    //Si un slug a sa valeur dans l'URL, on la lui attribut sous format clé-valeur
+                if(!empty($matches[$i + 1])) {
+                    //we have to get the absolute value in case of an optional parameter in URL
+                    //the URL is of a (-[1-9][0-9]{0,}) form in this case
+                    $matches[$i + 1] = abs($matches[$i + 1]);
+                    //if a slug has been attributed a value in the URL, the couple is added in a key-value array
                     $actionParameters[$this->slugs[$i]] = $matches[$i + 1];
                 }
             }
