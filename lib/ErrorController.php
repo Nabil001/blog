@@ -1,6 +1,6 @@
 <?php
 
-namespace Blog\Controllers;
+namespace Library;
 
 class ErrorController extends \Library\Controller {
 

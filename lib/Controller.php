@@ -9,7 +9,7 @@ class Controller {
     protected $actionParameters;
     protected $application;
 
-    public function __construct(\Library\Route $route, array $actionParameters, \Blog\Application $application) {
+    public function __construct(Route $route, Application $application, array $actionParameters = []) {
         $this->route = $route;
         $this->application = $application;
         $this->actionParameters = $actionParameters;
