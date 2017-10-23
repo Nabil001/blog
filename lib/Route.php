@@ -13,9 +13,9 @@ class Route {
         if(!empty($urlPattern) && strcmp($urlPattern[0], substr($urlPattern, -1)) != 0) {
             throw new \InvalidArgumentException('The given URL pattern,'.$urlPattern.' is invalid' . "\n");
         }
-        $this->module = strval($module);
-        $this->action = strval($action);
-        $this->urlPattern = strval($urlPattern);
+        $this->module = $module;
+        $this->action = $action;
+        $this->urlPattern = $urlPattern;
         $this->slugs = $slugs;
     }
 
