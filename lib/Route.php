@@ -25,6 +25,9 @@ class Route {
             //if there's a match, we go through the slugs array
             for($i = 0 ; $i < count($this->slugs) ; $i++) {
                 if(!empty($matches[$i + 1])) {
+                    //we have to get the absolute value in case of an optional parameter in URL
+                    //the URL is of a (-[1-9][0-9]{0,}) form in this case
+                    $matches[$i + 1] = abs($matches[$i + 1]);
                     //if a slug has been attributed a value in the URL, the couple is added in a key-value array
                     $actionParameters[$this->slugs[$i]] = $matches[$i + 1];
                 }
