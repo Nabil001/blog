@@ -4,7 +4,7 @@ namespace Library;
 
 class Controller {
 
-    protected $template;
+    protected $twigEnv;
     protected $route;
     protected $actionParameters;
     protected $application;
@@ -15,8 +15,11 @@ class Controller {
         $this->actionParameters = $actionParameters;
 
         $loader = new \Twig_Loader_Filesystem(array('templates/'.$route->getModule(), 'templates/layout'));
-        $twig = new \Twig_Environment($loader);
-        $this->template = $twig->load($this->route->getAction().'.twig.html');
+        $this->twigEnv = new \Twig_Environment($loader);
+    }
+
+    public function render($view, array $data = []) {
+        return $this->twigEnv->load($view.'.twig.html')->render($data);
     }
 
     public function action() {

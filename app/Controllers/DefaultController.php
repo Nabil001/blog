@@ -5,7 +5,7 @@ namespace Blog\Controllers;
 class DefaultController extends \Library\Controller {
 
     public function homeAction() {
-        return $this->template->render();
+        return $this->render($this->route->getAction());
     }
 
 }
