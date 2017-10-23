@@ -18,9 +18,9 @@ class Router {
     public function getController() {
 
         foreach ($this->routes as $route) {
-            if($route->matches($this->application->getRequest()->getURI()) !== false) {
+            if(($actionParameters = $route->matches($this->application->getRequest()->getURI())) !== false) {
                 $controller = '\Blog\\Controllers\\'.$route->getModule().'Controller';
-                return new $controller($route, $this->application);
+                return new $controller($route, $actionParameters, $this->application);
             }
         }
         throw new Exceptions\NoSuchRouteException();

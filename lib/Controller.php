@@ -6,11 +6,13 @@ class Controller {
 
     protected $template;
     protected $route;
+    protected $actionParameters;
     protected $application;
 
-    public function __construct(\Library\Route $route, \Blog\Application $application) {
+    public function __construct(\Library\Route $route, array $actionParameters, \Blog\Application $application) {
         $this->route = $route;
         $this->application = $application;
+        $this->actionParameters = $actionParameters;
 
         $loader = new \Twig_Loader_Filesystem(array('templates/'.$route->getModule(), 'templates/layout'));
         $twig = new \Twig_Environment($loader);
@@ -26,15 +28,14 @@ class Controller {
                                     function($parameter){return $parameter->getName();},
                                     $method->getParameters()
                                 );
-            $parametersValues = $this->route->matches($this->application->getRequest()->getURI());
-            $parameters = [];
+            $sortedParameters = [];
             foreach ($parametersNames as $parameterName) {
-                if(isset($parametersValues[$parameterName])) {
-                    $parameters[] = $parametersValues[$parameterName];
+                if(isset($this->actionParameters[$parameterName])) {
+                    $sortedParameters[] = $this->actionParameters[$parameterName];
                 }
             }
 
-            return new Response($method->invokeArgs($this, $parameters));
+            return new Response($method->invokeArgs($this, $sortedParameters));
         }
         else {
             throw new Exceptions\UnimplementedActionException($this->route->getModule(), $this->route->getAction());
