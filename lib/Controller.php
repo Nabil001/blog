@@ -8,6 +8,7 @@ class Controller {
     protected $route;
     protected $actionParameters;
     protected $application;
+    protected $manager;
 
     public function __construct(Route $route, Application $application, array $actionParameters = []) {
         $this->route = $route;
