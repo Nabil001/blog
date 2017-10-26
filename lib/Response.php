@@ -11,7 +11,7 @@ class Response {
     }
 
     public function send() {
-        exit($this->view);
+        echo $this->view;
     }
 
 }

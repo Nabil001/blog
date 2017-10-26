@@ -7,7 +7,7 @@ class Router {
     protected $routes;
     protected $application;
 
-    public function __construct(\Blog\Application $application) {
+    public function __construct(Application $application) {
         $this->application = $application;
     }
 
@@ -18,9 +18,9 @@ class Router {
     public function getController() {
 
         foreach ($this->routes as $route) {
-            if($route->matches($this->application->getRequest()->getURI()) !== false) {
+            if(($actionParameters = $route->matches($this->application->getRequest()->getURI())) !== false) {
                 $controller = '\Blog\\Controllers\\'.$route->getModule().'Controller';
-                return new $controller($route, $this->application);
+                return new $controller($route, $this->application, $actionParameters);
             }
         }
         throw new Exceptions\NoSuchRouteException();
