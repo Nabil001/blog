@@ -5,115 +5,139 @@ namespace Library;
 abstract class Manager {
 
     protected $pdo;
-    protected $managedClass;
-    protected $table;
-    protected $primaryKey;
 
-    public function __construct(\PDO $pdo, $table = '') {
+    public abstract function getEntity();
+
+    public function __construct(\PDO $pdo) {
         $this->pdo = $pdo;
-        preg_match('#([a-zA-Z0-9]+)Manager$#', get_class($this), $matches);
-        $this->managedClass = '\\'.__NAMESPACE__.'\\'.$matches[1];
-        if(empty($table)) {
-            $this->table = $matches[1];
-        }
-        else {
-            $this->table = $table;
-        }
-        $checkExistenceQuery = $this->pdo->query('SELECT Table_Name
-                                            FROM INFORMATION_SCHEMA.Tables
-                                            WHERE Table_Name = \''.$this->table.'\''
-                                        );
-        if($checkExistenceQuery->rowCount() == 0) {
-            throw new Exceptions\NoSuchTableException($this->table);
-        }
-        $checkExistenceQuery->closeCursor();
-
-        $pkQuery = $this->pdo->query('SELECT DISTINCT Column_Name
-                                        FROM INFORMATION_SCHEMA.Key_Column_Usage
-                                        WHERE Constraint_Name = \'PRIMARY\'
-                                        AND Table_Name = \''.$this->table.'\''
-                                    );
-        if($checkExistenceQuery->rowCount() == 0) {
-            throw new Exceptions\NoPrimaryKeyException($this->table);
-        }
-        $this->primaryKey = $pkQuery->fetchColumn();
-        $pkQuery->closeCursor();
     }
 
-    public function save($instance) {
+    public function insert($instance) {
         if($this->check($instance) && $instance->isValid()) {
-            if($instance->isIdentified()) {
-                $this->update($instance);
-            }
-            else {
-                $this->insert($instance);
-            }
-        }
-    }
+            $fields = $this->getEntity()::FIELDS;
+            $sql = 'INSERT INTO '.$this->getEntity()::TABLE.' (';
 
-    protected function insert($instance) {
-        if($this->check($instance) && $instance->isValid()) {
-            $fields = $instance->getFields();
-            $sql = 'INSERT INTO '.$this->table.' (';
-            for($i = 0 ; $i < count($fields) ; $i++) {
-                if($fields[$i] != $this->primaryKey) {
-                    $sql .= $fields[$i].($i != count($fields) - 1 ? ', ' : ')');
+            foreach ($fields as $key => &$field) {
+                if(!((isset($field['primaryKey']) && $field['primaryKey'])
+                    && (isset($field['autoIncrement']) && $field['autoIncrement']))) {
+                    $sql .= $key.($field == end($fields) ? ') VALUES (' : ', ');
                 }
             }
-            $sql .= ' VALUES (';
-            for($i = 0 ; $i < count($fields) ; $i++) {
-                if($fields[$i] != $this->primaryKey) {
-                    $sql .= ':'.$fields[$i].($i != count($fields) - 1 ? ', ' : ')');
-                }
+            foreach ($fields as $key => &$field) {
+                if(!((isset($field['primaryKey']) && $field['primaryKey'])
+                    && (isset($field['autoIncrement']) && $field['autoIncrement']))) {
+                        $sql .= ':'.$key.($field == end($fields) ? ')' : ', ');
+                    }
             }
-            $valuesToSave = $instance->getValuesToSave();
-            unset($valuesToSave[$this->primaryKey]);
+
             $insertQuery = $this->pdo->prepare($sql);
-            $insertQuery->execute($valuesToSave);
+
+            $instance->prePersist();
+            $reflection = new \ReflectionClass($instance);
+            foreach ($fields as $key => &$field) {
+                if(!((isset($field['primaryKey']) && $field['primaryKey'])
+                    && (isset($field['autoIncrement']) && $field['autoIncrement']))) {
+                        $property = $reflection->getProperty($field['fieldName']);
+                        $property->setAccessible(true);
+                        $insertQuery->bindValue($key, $property->getValue($instance));
+                    }
+            }
+            $insertQuery->execute();
+            $instance->postPersist($this->pdo->lastInsertId());
         }
     }
 
-    protected function update($instance) {
+    public function update($instance) {
         if($this->check($instance) && $instance->isValid()) {
-            $fields = $instance->getFields();
-            $sql = 'UPDATE '.$this->table.' SET ';
-            for($i = 0 ; $i < count($fields) ; $i++) {
-                if($fields[$i] != $this->primaryKey) {
-                    $sql .= $fields[$i].' = :'.$fields[$i].($i != count($fields) - 1 ? ', ' : '');
+            $fields = $this->getEntity()::FIELDS;
+            $sql = 'UPDATE '.$this->getEntity()::TABLE. ' SET ';
+            foreach ($fields as $key => &$field) {
+                if(!isset($field['primaryKey']) || !$field['primaryKey']) {
+                    $sql .= $key.' = :'.$key.($field == end($fields) ? ' WHERE ' : ', ');
+                }
+                else {
+                    $primaryKey = $key;
                 }
             }
-            $sql .= ' WHERE '.$this->primaryKey.' = :'.$this->primaryKey;
+            $sql .= $primaryKey.' = :'.$primaryKey;
+
             $updateQuery = $this->pdo->prepare($sql);
-            $updateQuery->execute($instance->getValuesToSave());
+
+            $instance->preUpdate();
+            $reflection = new \ReflectionClass($instance);
+            foreach ($fields as $key => &$field) {
+                $property = $reflection->getProperty($field['fieldName']);
+                $property->setAccessible(true);
+                $updateQuery->bindValue($key, $property->getValue($instance));
+            }
+            $updateQuery->execute();
+            $instance->postUpdate();
         }
     }
 
     public function delete($instance) {
         $this->check($instance);
-        $sql = 'DELETE FROM '.$this->table.' WHERE '.$this->primaryKey.' = :'.$this->primaryKey;
+        $sql = 'DELETE FROM '.$this->getEntity()::TABLE.' WHERE ';
+        foreach ($this->getEntity()::FIELDS as $key => &$field) {
+            if(isset($field['primaryKey']) && $field['primaryKey']) {
+                $primaryKey = $key;
+                $primaryKeyField = &$field;
+                break;
+            }
+        }
+        $sql .= $key.' = :'.$key;
+
         $deleteQuery = $this->pdo->prepare($sql);
-        $deleteQuery->execute([$this->primaryKey => $instance[$this->primaryKey]]);
+
+        $reflection = new \ReflectionClass($instance);
+        $property = $reflection->getProperty($primaryKeyField['fieldName']);
+        $property->setAccessible(true);
+        $deleteQuery->bindValue($primaryKey, $property->getValue($instance));
+        $deleteQuery->execute();
     }
 
-    public function get($pkValue) {
-        $getQuery = $this->pdo->query('SELECT * FROM '.$this->table.' WHERE '.$this->primaryKey.' = '.intval($pkValue));
-        $getQuery->setFetchMode(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, $this->managedClass);
-        $post = $getQuery->fetch();
+    public function get($givenPrimaryKey) {
+        $fields = $this->getEntity()::FIELDS;
+        $sql = 'SELECT ';
+        foreach ($fields as $key => &$field) {
+                $sql .= $key.' AS '.$field['fieldName'].($field == end($fields) ? ' FROM ' : ', ');
+            if(isset($field['primaryKey']) && $field['primaryKey']) {
+                $primaryKey = $key;
+            }
+        }
+        $sql .= $this->getEntity()::TABLE . ' WHERE '.$primaryKey. ' = :'.$primaryKey;
+
+        $getQuery = $this->pdo->prepare($sql);
+
+        $getQuery->bindValue($primaryKey, $givenPrimaryKey);
+        $getQuery->execute();
+
+        $getQuery->setFetchMode(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, $this->getEntity());
+        $object = $getQuery->fetch();
         $getQuery->closeCursor();
-        return $post;
+
+        return $object;
     }
 
     public function getList() {
-        $getListQuery = $this->pdo->query('SELECT * FROM '.$this->table);
-        $getListQuery->setFetchMode(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, $this->managedClass);
-        $posts = $getListQuery->fetchAll();
+        $fields = $this->getEntity()::FIELDS;
+        $sql = 'SELECT ';
+        foreach ($fields as $key => &$field) {
+            $sql .= $key.' AS '.$field['fieldName'].($field == end($fields) ? ' FROM ' : ', ');
+        }
+        $sql .= $this->getEntity()::TABLE;
+
+        $getListQuery = $this->pdo->query($sql);
+        $getListQuery->setFetchMode(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, $this->getEntity());
+        $objects = $getListQuery->fetchAll();
         $getListQuery->closeCursor();
-        return $posts;
+
+        return $objects;
     }
 
     protected function check($instance) {
-        if(!is_a($instance, $this->managedClass) || !is_subclass_of($instance, '\Library\TableRow')) {
-            throw new \InvalidArgumentException('The parameter isn\'t an instance of '.$this->managedClass);
+        if(!is_a($instance, $this->getEntity()) || !is_subclass_of($instance, '\Library\Entity')) {
+            throw new \InvalidArgumentException('The given instance is not valid');
         }
         return true;
     }
