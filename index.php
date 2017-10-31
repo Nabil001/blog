@@ -2,5 +2,5 @@
 
 require 'vendor/autoload.php';
 
-$application = new \Application\Blog();
+$application = new \Blog\Application();
 $application->run();
