@@ -10,4 +10,10 @@ git clone https://github.com/Nabil001/blog.git
 ```
 composer install
 ```
+- Edit .htaccess as follows :
+```
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ index.php [QSA,L]
+```
 - You can now access the website going on the address reaching the website's directory
