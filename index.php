@@ -1,6 +1,7 @@
 <?php
 
 require 'vendor/autoload.php';
+require 'app/fillRouter.php';
 
-$application = new \Application\Blog();
+$application = new \Library\Application();
 $application->run();
