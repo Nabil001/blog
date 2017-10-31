@@ -74,22 +74,40 @@
                         <div class="row control-group">
                             <div class="form-group col-xs-12 floating-label-form-group controls">
                                 <label>Name</label>
-                                <input type="text" class="form-control" placeholder="Name" id="name">
-                                <p class="help-block text-danger"></p>
+                                <input type="text" class="form-control" placeholder="Name" id="name" name="name" value="{{ name }}">
+                                {% if nameNotif is defined %}
+                                    <p class="help-block text-danger">
+                                        <div class="label label-lg label-danger">
+                                            {{ nameNotif }}
+                                        </div>
+                                    </p>
+                                {% endif %}
                             </div>
                         </div>
                         <div class="row control-group">
                             <div class="form-group col-xs-12 floating-label-form-group controls">
                                 <label>Email Address</label>
-                                <input type="email" class="form-control" placeholder="Email Address" id="email">
-                                <p class="help-block text-danger"></p>
+                                <input type="email" class="form-control" placeholder="Email Address" id="email" name="email" value="{{ email }}">
+                                {% if emailNotif is defined %}
+                                    <p class="help-block text-danger">
+                                        <div class="label label-lg label-danger">
+                                            {{ emailNotif }}
+                                        </div>
+                                    </p>
+                                {% endif %}
                             </div>
                         </div>
                         <div class="row control-group">
                             <div class="form-group col-xs-12 floating-label-form-group controls">
                                 <label>Message</label>
-                                <textarea rows="5" class="form-control" placeholder="Message" id="message"></textarea>
-                                <p class="help-block text-danger"></p>
+                                <textarea rows="5" class="form-control" placeholder="Message" id="message" name="message">{{ message }}</textarea>
+                                {% if messageNotif is defined %}
+                                    <p class="help-block text-danger">
+                                        <div class="label label-lg label-danger">
+                                            {{ messageNotif }}
+                                        </div>
+                                    </p>
+                                {% endif %}
                             </div>
                         </div>
                         <br>
