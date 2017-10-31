@@ -10,6 +10,15 @@ git clone https://github.com/Nabil001/blog.git
 ```
 composer install
 ```
+- Create a folder 'config' at the root of the project, containing a 'pdo.xml' file, edited as follows :
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<pdo>
+    <database host="[database server host IP adress]" dbname="[name of the blog posts database]" />
+    <user id="[database user]" passwd="[database user's password]" />
+</pdo>
+```
+(The text between brackets is to be replaced)
 - Edit .htaccess as follows :
 ```
 RewriteEngine On
