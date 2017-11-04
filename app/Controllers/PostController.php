@@ -87,10 +87,6 @@ class PostController extends \Library\Controller {
 
             if(empty($notifArray)) {
                 try {
-                    $post->setTitle(nl2br(ucfirst($post->getTitle())));
-                    $post->setLead(nl2br(ucfirst($post->getLead())));
-                    $post->setContent(nl2br(ucfirst($post->getContent())));
-                    $post->setAuthor(nl2br(ucfirst($post->getAuthor())));
                     $this->manager->update($post);
                     header('Location: /show-'.$id);
                 } catch(\PDOException $e) {
@@ -160,10 +156,6 @@ class PostController extends \Library\Controller {
 
             if(empty($notifArray)) {
                 try {
-                    $post->setTitle(nl2br(ucfirst($post->getTitle())));
-                    $post->setLead(nl2br(ucfirst($post->getLead())));
-                    $post->setContent(nl2br(ucfirst($post->getContent())));
-                    $post->setAuthor(nl2br(ucfirst($post->getAuthor())));
                     $this->manager->insert($post);
                     header('Location: /list-1');
                 } catch(\PDOException $e) {
