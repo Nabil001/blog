@@ -108,10 +108,10 @@ class Post extends \Library\Entity {
     }
 
     public function prePersist() {
-        $this->title = ucfirst($title);
-        $this->lead = ucfirst($lead);
-        $this->content = ucfirst($content);
-        $this->author = ucwords($author);
+        $this->title = ucfirst($this->title);
+        $this->lead = ucfirst($this->lead);
+        $this->content = ucfirst($this->content);
+        $this->author = ucwords($this->author);
         $this->lastUpdate = date('Y-m-d H:i:s');
     }
 
@@ -120,10 +120,10 @@ class Post extends \Library\Entity {
     }
 
     public function preUpdate() {
-        $this->title = ucfirst($title);
-        $this->lead = ucfirst($lead);
-        $this->content = ucfirst($content);
-        $this->author = ucwords($author);
+        $this->title = ucfirst($this->title);
+        $this->lead = ucfirst($this->lead);
+        $this->content = ucfirst($this->content);
+        $this->author = ucwords($this->author);
         $this->lastUpdate = date('Y-m-d H:i:s');
     }
 
