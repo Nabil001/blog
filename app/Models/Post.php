@@ -45,6 +45,7 @@ class Post extends \Library\Entity {
             'type' => 'datetime',
             'nullable' => false,
             'required' => true,
+            'order' => 'DESC'
         ]
     ];
 

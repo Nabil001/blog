@@ -121,11 +121,22 @@ abstract class Manager {
 
     public function getList() {
         $fields = $this->getEntity()::FIELDS;
+
+        $ordering = [];
+        foreach ($fields as $key => &$field) {
+            if(isset($field['order'])) {
+                $ordering['orderingColumn'] = $field['fieldName'];
+                $ordering['order'] = $field['order'];
+            }
+        }
+
         $sql = 'SELECT ';
         foreach ($fields as $key => &$field) {
             $sql .= $key.' AS '.$field['fieldName'].($field == end($fields) ? ' FROM ' : ', ');
         }
         $sql .= $this->getEntity()::TABLE;
+        $sql .= !empty($ordering) ?
+                    ' ORDER BY '.$ordering['orderingColumn'].' '.$ordering['order'] : '';
 
         $getListQuery = $this->pdo->query($sql);
         $getListQuery->setFetchMode(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, $this->getEntity());
