@@ -45,6 +45,11 @@ class PostController extends \Library\Controller {
         $request = $this->application->getRequest();
         $notifArray = [];
         if($request->getMethod() == 'POST') {
+            session_start();
+            if(empty($_POST['token']) || empty($_SESSION['token'])
+                || $_POST['token'] != $_SESSION['token']) {
+                    header('Location: /update-'.$id);
+            }
             $post = new \Blog\Models\Post();
             $post->setId($id);
             $request->hydrate($post);
@@ -99,9 +104,12 @@ class PostController extends \Library\Controller {
                 $errorController = $this->application->get404ErrorController();
                 return $errorController->show404Action();
             }
+            session_start();
+            $_SESSION['token'] = bin2hex(mcrypt_create_iv(32, MCRYPT_DEV_URANDOM));
         }
 
-        return $this->render('update', array_merge($notifArray, ['post' => $post]));
+        return $this->render('update', array_merge($notifArray,
+                                                    ['post' => $post, 'token' => $_SESSION['token']]));
     }
 
     public function addAction() {
@@ -109,6 +117,12 @@ class PostController extends \Library\Controller {
         $notifArray = [];
         $post = new \Blog\Models\Post();
         if($request->getMethod() == 'POST') {
+            session_start();
+            if(empty($_POST['token']) || empty($_SESSION['token'])
+                || $_POST['token'] != $_SESSION['token']) {
+                    header('Location: /add');
+            }
+
             $request->hydrate($post);
 
             if(empty($post->getAuthor())) {
@@ -149,8 +163,13 @@ class PostController extends \Library\Controller {
                 }
             }
         }
+        else {
+            session_start();
+            $_SESSION['token'] = bin2hex(mcrypt_create_iv(32, MCRYPT_DEV_URANDOM));
+        }
 
-        return $this->render('add', array_merge($notifArray, ['post' => $post]));
+        return $this->render('add', array_merge($notifArray,
+                                                ['post' => $post, 'token' => $_SESSION['token']]));
     }
 
 }
