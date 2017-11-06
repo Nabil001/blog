@@ -28,4 +28,26 @@ class Request {
         return $_SERVER['SERVER_PROTOCOL'];
     }
 
+    public function hydrate($instance) {
+        try {
+            $reflection = new \ReflectionClass($instance);
+        } catch(\ReflectionException $e) {
+            return;
+        }
+
+        $properties = array_map(
+                            function($property){return $property->getName();},
+                            $reflection->getProperties()
+                        );
+
+        foreach ($properties as $property) {
+            if($data = $this->getPostData($property)) {
+                $method = 'set'.ucfirst($property);
+                if(method_exists($instance, $method)) {
+                    $instance->$method(strip_tags(trim($data)));
+                }
+            }
+        }
+    }
+
 }

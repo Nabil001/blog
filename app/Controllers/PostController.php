@@ -47,43 +47,35 @@ class PostController extends \Library\Controller {
         if($request->getMethod() == 'POST') {
             $post = new \Blog\Models\Post();
             $post->setId($id);
+            $request->hydrate($post);
 
-            $author = strip_tags(trim($request->getPostData('author')));
-            $title = strip_tags(trim($request->getPostData('title')));
-            $lead = strip_tags(trim($request->getPostData('lead')));
-            $content = strip_tags(trim($request->getPostData('content')));
-
-            if(empty($author)) {
+            if(empty($post->getAuthor())) {
                 $notifArray['authorNotif'] = 'The author field is empty';
             }
-            else if(strlen($author) < 2) {
+            else if(strlen($post->getAuthor()) < 2) {
                 $notifArray['authorNotif'] = 'The author field is too short';
             }
-            $post->setAuthor($author);
 
-            if(empty($title)) {
+            if(empty($post->getTitle())) {
                 $notifArray['titleNotif'] = 'The title field is empty';
             }
-            else if(strlen($title) < 5) {
+            else if(strlen($post->getTitle()) < 5) {
                 $notifArray['titleNotif'] = 'The title field is too short';
             }
-            $post->setTitle($title);
 
-            if(empty($lead)) {
+            if(empty($post->getLead())) {
                 $notifArray['leadNotif'] = 'The lead field is empty';
             }
-            else if(strlen($lead) < 15) {
+            else if(strlen($post->getLead()) < 15) {
                 $notifArray['leadNotif'] = 'The lead field is too short';
             }
-            $post->setLead($lead);
 
-            if(empty($content)) {
+            if(empty($post->getContent())) {
                 $notifArray['contentNotif'] = 'The content field is empty';
             }
-            else if(strlen($content) < 30) {
+            else if(strlen($post->getContent()) < 30) {
                 $notifArray['contentNotif'] = 'The content field is too short';
             }
-            $post->setContent($content);
 
             if(empty($notifArray)) {
                 try {
@@ -117,42 +109,35 @@ class PostController extends \Library\Controller {
         $notifArray = [];
         $post = new \Blog\Models\Post();
         if($request->getMethod() == 'POST') {
-            $author = strip_tags(trim($request->getPostData('author')));
-            $title = strip_tags(trim($request->getPostData('title')));
-            $lead = strip_tags(trim($request->getPostData('lead')));
-            $content = strip_tags(trim($request->getPostData('content')));
+            $request->hydrate($post);
 
-            if(empty($author)) {
+            if(empty($post->getAuthor())) {
                 $notifArray['authorNotif'] = 'The author field is empty';
             }
-            else if(strlen($author) < 2) {
+            else if(strlen($post->getAuthor()) < 2) {
                 $notifArray['authorNotif'] = 'The author field is too short';
             }
-            $post->setAuthor($author);
 
-            if(empty($title)) {
+            if(empty($post->getTitle())) {
                 $notifArray['titleNotif'] = 'The title field is empty';
             }
-            else if(strlen($title) < 5) {
+            else if(strlen($post->getTitle()) < 5) {
                 $notifArray['titleNotif'] = 'The title field is too short';
             }
-            $post->setTitle($title);
 
-            if(empty($lead)) {
+            if(empty($post->getLead())) {
                 $notifArray['leadNotif'] = 'The lead field is empty';
             }
-            else if(strlen($lead) < 15) {
+            else if(strlen($post->getLead()) < 15) {
                 $notifArray['leadNotif'] = 'The lead field is too short';
             }
-            $post->setLead($lead);
 
-            if(empty($content)) {
+            if(empty($post->getContent())) {
                 $notifArray['contentNotif'] = 'The content field is empty';
             }
-            else if(strlen($content) < 30) {
+            else if(strlen($post->getContent()) < 30) {
                 $notifArray['contentNotif'] = 'The content field is too short';
             }
-            $post->setContent($content);
 
             if(empty($notifArray)) {
                 try {
