@@ -78,7 +78,7 @@ abstract class Manager {
 
     public function delete($instance) {
         $this->check($instance);
-        $sql = 'DELETE FROM '.$this->getEntity()::TABLE.' WHERE ';
+        $sql = 'DELETE FROM :table WHERE ';
         foreach ($this->getEntity()::FIELDS as $key => &$field) {
             if(isset($field['primaryKey']) && $field['primaryKey']) {
                 $primaryKey = $key;
@@ -94,6 +94,7 @@ abstract class Manager {
         $property = $reflection->getProperty($primaryKeyField['fieldName']);
         $property->setAccessible(true);
         $deleteQuery->bindValue($primaryKey, $property->getValue($instance));
+        $deleteQuery->bindValue('table', $this->getEntity()::TABLE);
         $deleteQuery->execute();
     }
 
@@ -137,9 +138,12 @@ abstract class Manager {
         }
         $sql .= $this->getEntity()::TABLE;
         $sql .= !empty($ordering) ?
-                    ' ORDER BY '.$ordering['orderingColumn'].' '.$ordering['order'] : '';
+                    ' ORDER BY :orderingColumn :order';
 
-        $getListQuery = $this->pdo->query($sql);
+        $getListQuery = $this->pdo->prepare($sql);
+        $getListQuery->bindValue('orderingColumn', $ordering['orderingColumn']);
+        $getListQuery->bindValue('order', $ordering['order']);
+        $getListQuery->execute();
         $getListQuery->setFetchMode(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, $this->getEntity());
         $objects = $getListQuery->fetchAll();
         $getListQuery->closeCursor();
