@@ -15,7 +15,7 @@ abstract class Manager {
     public function insert($instance) {
         if($this->check($instance) && $instance->isValid()) {
             $fields = $this->getEntity()::FIELDS;
-            $sql = 'INSERT INTO '.$this->getEntity()::TABLE.' (';
+            $sql = 'INSERT INTO :table (';
 
             foreach ($fields as $key => &$field) {
                 if(!((isset($field['primaryKey']) && $field['primaryKey'])
@@ -42,6 +42,7 @@ abstract class Manager {
                         $insertQuery->bindValue($key, $property->getValue($instance));
                     }
             }
+            $insertQuery->bindValue(':table', $this->getEntity()::TABLE);
             $insertQuery->execute();
             $instance->postPersist($this->pdo->lastInsertId());
         }
